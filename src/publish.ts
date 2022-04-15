@@ -24,6 +24,10 @@ export class SnapcraftPublisher {
   }
 
   async validate(): Promise<void> {
+    if (process.env.SNAPCRAFT_STORE_CREDENTIALS) {
+      return
+    }
+
     if (!this.loginData) {
       throw new Error('login_data is empty')
     }
@@ -63,7 +67,9 @@ export class SnapcraftPublisher {
   async publish(): Promise<void> {
     await tools.ensureSnapd()
     await tools.ensureSnapcraft()
-    await this.login()
+    if (!process.env.SNAPCRAFT_STORE_CREDENTIALS) {
+      await this.login()
+    }
     try {
       await this.upload()
     } finally {
